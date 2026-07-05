@@ -1,0 +1,11 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { DashboardLayout } from '../components/layout/DashboardLayout';
+import { ChatPage } from '../components/pages/ChatPage';
+---
+
+<Layout title="AI Chat - InsightAI">
+  <DashboardLayout currentPage="chat">
+    <ChatPage client:load />
+  </DashboardLayout>
+</Layout>

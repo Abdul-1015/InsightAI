@@ -1,0 +1,11 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { DashboardLayout } from '../components/layout/DashboardLayout';
+import { InsightsPage } from '../components/pages/InsightsPage';
+---
+
+<Layout title="Insights - InsightAI">
+  <DashboardLayout currentPage="insights">
+    <InsightsPage client:load />
+  </DashboardLayout>
+</Layout>

@@ -1,0 +1,11 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { DashboardLayout } from '../components/layout/DashboardLayout';
+import { UploadPage } from '../components/pages/UploadPage';
+---
+
+<Layout title="Upload Data - InsightAI">
+  <DashboardLayout currentPage="upload">
+    <UploadPage client:load />
+  </DashboardLayout>
+</Layout>
