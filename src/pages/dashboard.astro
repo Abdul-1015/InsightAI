@@ -2,9 +2,26 @@
 import Layout from '../layouts/Layout.astro';
 import { DashboardLayout } from '../components/layout/DashboardLayout';
 import { DashboardPage } from '../components/pages/DashboardPage';
+import { validateSessionToken, getUser } from '../lib/auth';
+
+export const prerender = false;
+
+const sessionToken = Astro.cookies.get('session')?.value;
+let user = null;
+
+if (sessionToken) {
+  const session = await validateSessionToken(sessionToken);
+  if (session) {
+    user = getUser(session.userId) || null;
+  }
+}
+
+if (!user) {
+  return Astro.redirect('/signin', 302);
+}
 ---
 
-<Layout title="Dashboard - InsightAI">
+<Layout title="Dashboard - InsightAI" user={user}>
   <DashboardLayout currentPage="dashboard">
     <DashboardPage client:load />
   </DashboardLayout>

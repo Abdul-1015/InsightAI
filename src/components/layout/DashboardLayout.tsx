@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Sidebar, type Page } from './Sidebar';
 import { TopBar } from './TopBar';
+import { AuthProvider } from '../auth/AuthProvider';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -26,14 +27,16 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children, curr
   };
 
   return (
-    <div className="flex h-screen overflow-hidden bg-background">
-      <Sidebar currentPage={currentPage} open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-      <div className="flex-1 flex flex-col lg:ml-60 overflow-hidden min-w-0">
-        <TopBar onMenuClick={() => setSidebarOpen(true)} isDark={isDark} onToggleDark={toggleDark} currentPage={currentPage} />
-        <main className="flex-1 overflow-y-auto bg-background">
-          {children}
-        </main>
+    <AuthProvider>
+      <div className="flex h-screen overflow-hidden bg-background">
+        <Sidebar currentPage={currentPage} open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+        <div className="flex-1 flex flex-col lg:ml-60 overflow-hidden min-w-0">
+          <TopBar onMenuClick={() => setSidebarOpen(true)} isDark={isDark} onToggleDark={toggleDark} currentPage={currentPage} />
+          <main className="flex-1 overflow-y-auto bg-background">
+            {children}
+          </main>
+        </div>
       </div>
-    </div>
+    </AuthProvider>
   );
 };

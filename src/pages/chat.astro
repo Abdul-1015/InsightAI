@@ -2,9 +2,26 @@
 import Layout from '../layouts/Layout.astro';
 import { DashboardLayout } from '../components/layout/DashboardLayout';
 import { ChatPage } from '../components/pages/ChatPage';
+import { validateSessionToken, getUser } from '../lib/auth';
+
+export const prerender = false;
+
+const sessionToken = Astro.cookies.get('session')?.value;
+let user = null;
+
+if (sessionToken) {
+  const session = await validateSessionToken(sessionToken);
+  if (session) {
+    user = getUser(session.userId) || null;
+  }
+}
+
+if (!user) {
+  return Astro.redirect('/signin', 302);
+}
 ---
 
-<Layout title="AI Chat - InsightAI">
+<Layout title="AI Chat - InsightAI" user={user}>
   <DashboardLayout currentPage="chat">
     <ChatPage client:load />
   </DashboardLayout>

@@ -848,7 +848,7 @@ function DashboardBuilder() {
                 <XAxis dataKey="month" tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }} tickLine={false} axisLine={false} />
                 <YAxis tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }} tickLine={false} axisLine={false} />
                 <Tooltip content={<ChartTooltip />} />
-                <ReLineChart type="monotone" dataKey="users" name="Users" stroke="#06B6D4" strokeWidth={2} dot={false} />
+                <Line type="monotone" dataKey="users" name="Users" stroke="#06B6D4" strokeWidth={2} dot={false} />
               </ReLineChart>
             </ResponsiveContainer>
           </div>
@@ -1397,10 +1397,10 @@ export default function App() {
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
-      <Sidebar page={page} onNavigate={navigate} onLogout={handleLogout} open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      <Sidebar currentPage={page} open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       <div className="flex-1 flex flex-col lg:ml-60 overflow-hidden min-w-0">
-        <TopBar onMenuClick={() => setSidebarOpen(true)} isDark={isDark} onToggleDark={() => setIsDark(!isDark)} page={page} />
+        <TopBar onMenuClick={() => setSidebarOpen(true)} isDark={isDark} onToggleDark={() => setIsDark(!isDark)} currentPage={page} />
 
         <main className="flex-1 overflow-y-auto bg-background">
           {page === 'dashboard' && <DashboardHome onNavigate={navigate} />}

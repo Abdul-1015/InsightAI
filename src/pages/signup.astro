@@ -1,6 +1,13 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import { SignUpPage } from '../components/pages/SignUpPage';
+
+export const prerender = false;
+
+const sessionToken = Astro.cookies.get('session')?.value;
+if (sessionToken) {
+  return Astro.redirect('/dashboard', 302);
+}
 ---
 
 <Layout title="Sign Up - InsightAI">

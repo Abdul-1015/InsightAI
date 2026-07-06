@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { User, Bell, Shield, Palette, CreditCard, Key, Mail, Globe, Moon, Sun, Check, ChevronRight, Camera, LogOut, Trash2, Download, RefreshCw, Lock, Eye, EyeOff, Building2, Users, FileText, BarChart2 } from 'lucide-react';
+import { User, Bell, Shield, Palette, CreditCard, Moon, Sun, Check, Camera, Eye, Users, MoreHorizontal, Download } from 'lucide-react';
 import { Card } from '../ui/Card';
 import { Badge } from '../ui/Badge';
 import { Button } from '../ui/Button';

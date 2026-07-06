@@ -1,9 +1,19 @@
-import { useState } from 'react';
-import { LayoutDashboard, Upload, MessageSquare, BarChart2, Lightbulb, FileText, FolderOpen, Settings, ChevronRight, ChevronDown, TrendingUp, TrendingDown, Sparkles, AlertTriangle, BarChart, PieChart, Activity, Eye, Clock, Target, ArrowRight, Zap, Users, DollarSign, ShoppingCart, Brain, Plus, Check, Copy, MoreHorizontal, Send, Paperclip, Bot, User, Shield, Globe, RefreshCw, FileDown, MoreVertical, Filter, Calendar, ArrowUpRight, Download, Search } from 'lucide-react';
+import { TrendingUp, TrendingDown, Sparkles, AlertTriangle, Target, DollarSign, Brain, Users, Plus, Download } from 'lucide-react';
 import { Card } from '../ui/Card';
 import { Badge } from '../ui/Badge';
 import { Button } from '../ui/Button';
 import { Spinner } from '../ui/Spinner';
+
+interface RevenueData { month: string; revenue: number; profit: number; queries: number; }
+interface PieData { name: string; value: number; color: string; }
+interface WeeklyData { day: string; queries: number; }
+interface ForecastData { month: string; actual: number; predicted: number; }
+interface ProductData { name: string; category: string; revenue: number; growth: number; status: string; }
+interface UserGrowthData { month: string; total: number; new: number; churned: number; }
+interface ReportData { id: string; name: string; type: string; date: string; status: string; size: string; }
+interface ProjectData { id: string; name: string; files: number; queries: number; lastActive: string; status: string; }
+interface AnomalyData { id: string; type: string; metric: string; value: string; expected: string; severity: string; date: string; }
+interface RecommendationData { id: string; title: string; impact: string; effort: string; description: string; }
 
 function cn(...classes: (string | undefined | false | null)[]) {
   return classes.filter(Boolean).join(" ");

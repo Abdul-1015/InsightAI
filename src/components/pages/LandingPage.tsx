@@ -5,7 +5,6 @@ import {
   TrendingDown, AlertTriangle, Download, Sparkles, Play,
   Shield, Layers
 } from 'lucide-react';
-import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
 import { Badge } from '../ui/Badge';
 import { Footer } from '../layout/Footer';

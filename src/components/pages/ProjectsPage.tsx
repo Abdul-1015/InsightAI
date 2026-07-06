@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { FolderOpen, Plus, Search, Filter, MoreHorizontal, Clock, FileText, MessageSquare, Lightbulb, BarChart2, Calendar, Users, ChevronRight, Archive, Trash2, Copy, Share, Settings } from 'lucide-react';
+import { FolderOpen, Plus, Search, MoreHorizontal, Lightbulb, BarChart2, Archive, Share, Settings } from 'lucide-react';
 import { Card } from '../ui/Card';
 import { Badge } from '../ui/Badge';
 import { Button } from '../ui/Button';

@@ -2,9 +2,7 @@ import { useState } from 'react';
 import { Upload, FileSpreadsheet, FileJson, FileText, CheckCircle2, AlertCircle, Loader2, X, Plus, BarChart2, Database } from 'lucide-react';
 import { Card } from '../ui/Card';
 import { Badge } from '../ui/Badge';
-import { Button } from '../ui/Button';
-import { Spinner } from '../ui/Spinner';
-import { revenueData, productData, reports, projects } from '../../data/mock';
+import { revenueData } from '../../data/mock';
 
 function cn(...classes: (string | undefined | false | null)[]) {
   return classes.filter(Boolean).join(" ");

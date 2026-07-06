@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Lightbulb, TrendingUp, TrendingDown, AlertTriangle, AlertCircle, Info, Sparkles, ArrowRight, Filter, Calendar, RefreshCw, Download, Share, Copy, MoreHorizontal, Check, ChevronDown } from 'lucide-react';
+import { Lightbulb, TrendingUp, AlertTriangle, Info, Sparkles, ArrowRight, RefreshCw, Download, Share, ChevronDown, Copy } from 'lucide-react';
 import { Card } from '../ui/Card';
 import { Badge } from '../ui/Badge';
 import { Button } from '../ui/Button';

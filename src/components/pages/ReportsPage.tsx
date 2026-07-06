@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { FileText, Download, Share, Calendar, Clock, CheckCircle2, AlertCircle, Loader2, Plus, Search, Filter, MoreHorizontal, Eye, Trash2, Copy, BarChart2, Sparkles } from 'lucide-react';
+import { FileText, Download, Share, Calendar, CheckCircle2, AlertCircle, Loader2, Plus, Search, MoreHorizontal, Eye, BarChart2, Sparkles } from 'lucide-react';
 import { Card } from '../ui/Card';
 import { Badge } from '../ui/Badge';
 import { Button } from '../ui/Button';
