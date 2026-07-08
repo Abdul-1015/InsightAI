@@ -10,6 +10,7 @@ import type { DatasetPatterns } from "../analytics/patterns";
 import type { DatasetKPIs } from "../analytics/kpi";
 import type { DatasetVisualizations } from "../analytics/visualizations";
 import type { DashboardLayout } from "../analytics/layout";
+import type { DashboardSpec } from "../analytics/dashboard";
 
 const DATASET_DETAIL_ROW_LIMIT = 100;
 
@@ -56,6 +57,7 @@ export async function getDatasetDetail(
     kpis: row.kpis as DatasetKPIs | null,
     visualizations: row.visualizations as DatasetVisualizations | null,
     layout: row.layout as DashboardLayout | null,
+    dashboardSpec: row.dashboardSpec as DashboardSpec | null,
     uploadedAt: row.uploadedAt,
     status: row.status,
   };

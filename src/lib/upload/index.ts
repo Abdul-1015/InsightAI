@@ -4,6 +4,7 @@ export type { DatasetPatterns } from "../analytics/patterns";
 export type { DatasetKPIs } from "../analytics/kpi";
 export type { DatasetVisualizations } from "../analytics/visualizations";
 export type { DashboardLayout } from "../analytics/layout";
+export type { DashboardSpec } from "../analytics/dashboard";
 export { validateFile } from "./validate";
 export { parseFile } from "./parse";
 export { parseFileMetadata } from "./parser";

@@ -57,6 +57,13 @@
       "when": 1783528500000,
       "tag": "0007_add_layout_column",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1783528600000,
+      "tag": "0008_add_dashboard_spec_column",
+      "breakpoints": true
     }
   ]
 }

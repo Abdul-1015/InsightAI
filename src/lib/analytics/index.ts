@@ -52,3 +52,11 @@ export type {
   DashboardLayout,
   LayoutInput,
 } from "./layout";
+
+export { generateDashboardSpec } from "./dashboard";
+export type {
+  DashboardSpec,
+  DashboardSpecInput,
+  DashboardDatasetMeta,
+  DashboardFilter,
+} from "./dashboard";

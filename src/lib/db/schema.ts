@@ -43,6 +43,7 @@ export const datasets = pgTable('datasets', {
   kpis: jsonb('kpis'),
   visualizations: jsonb('visualizations'),
   layout: jsonb('layout'),
+  dashboardSpec: jsonb('dashboard_spec'),
   uploadedAt: timestamp('uploaded_at', { withTimezone: true, mode: 'date' }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'date' })
     .notNull()

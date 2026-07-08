@@ -4,6 +4,7 @@ import type { DatasetPatterns } from "../analytics/patterns";
 import type { DatasetKPIs } from "../analytics/kpi";
 import type { DatasetVisualizations } from "../analytics/visualizations";
 import type { DashboardLayout } from "../analytics/layout";
+import type { DashboardSpec } from "../analytics/dashboard";
 
 export type Filetype = 'csv' | 'xlsx';
 
@@ -62,6 +63,7 @@ export interface DatasetMeta {
   kpis: DatasetKPIs | null;
   visualizations: DatasetVisualizations | null;
   layout: DashboardLayout | null;
+  dashboardSpec: DashboardSpec | null;
   uploadedAt: Date;
   status: string;
 }

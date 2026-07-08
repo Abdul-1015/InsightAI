@@ -12,12 +12,14 @@ import { discoverPatterns } from "../analytics/patterns";
 import { discoverKPIs } from "../analytics/kpi";
 import { recommendVisualizations } from "../analytics/visualizations";
 import { generateLayout } from "../analytics/layout";
+import { generateDashboardSpec } from "../analytics/dashboard";
 import type { DatasetMeta, Filetype, ColumnInfo, SemanticColumn } from "./types";
 import type { DatasetStatProfile } from "../analytics/profile";
 import type { DatasetPatterns } from "../analytics/patterns";
 import type { DatasetKPIs } from "../analytics/kpi";
 import type { DatasetVisualizations } from "../analytics/visualizations";
 import type { DashboardLayout } from "../analytics/layout";
+import type { DashboardSpec } from "../analytics/dashboard";
 
 function userUploadDir(userId: string): string {
   return path.join(UPLOAD_DIR, userId);
@@ -63,6 +65,7 @@ export async function saveDataset(
   let kpis: DatasetKPIs | null = null;
   let visualizations: DatasetVisualizations | null = null;
   let layout: DashboardLayout | null = null;
+  let dashboardSpec: DashboardSpec | null = null;
   let status = "uploaded";
 
   try {
@@ -78,6 +81,18 @@ export async function saveDataset(
     kpis = discoverKPIs(semantic, profile, patterns);
     visualizations = recommendVisualizations(semantic, profile, patterns, kpis);
     layout = generateLayout({ kpis: kpis.kpis, visualizations: visualizations.recommendations });
+    dashboardSpec = generateDashboardSpec({
+      datasetId: id,
+      datasetName: originalName,
+      rowCount: rowCount || 0,
+      uploadedAt: now,
+      semantic,
+      profile,
+      patterns,
+      kpis,
+      visualizations,
+      layout,
+    });
   } catch (error) {
     console.error(`Failed to parse file ${originalName}:`, error);
     status = "parse_error";
@@ -98,6 +113,7 @@ export async function saveDataset(
     kpis: kpis as any,
     visualizations: visualizations as any,
     layout: layout as any,
+    dashboardSpec: dashboardSpec as any,
     uploadedAt: now,
     status,
   });
@@ -117,6 +133,7 @@ export async function saveDataset(
     kpis,
     visualizations,
     layout,
+    dashboardSpec,
     uploadedAt: now,
     status,
   };
@@ -152,6 +169,7 @@ export async function getDatasetMeta(id: string, userId: string): Promise<Datase
     kpis: row.kpis as DatasetKPIs | null,
     visualizations: row.visualizations as DatasetVisualizations | null,
     layout: row.layout as DashboardLayout | null,
+    dashboardSpec: row.dashboardSpec as DashboardSpec | null,
     uploadedAt: row.uploadedAt,
     status: row.status,
   };
@@ -180,6 +198,7 @@ export async function listDatasets(userId: string): Promise<DatasetMeta[]> {
     kpis: row.kpis as DatasetKPIs | null,
     visualizations: row.visualizations as DatasetVisualizations | null,
     layout: row.layout as DashboardLayout | null,
+    dashboardSpec: row.dashboardSpec as DashboardSpec | null,
     uploadedAt: row.uploadedAt,
     status: row.status,
   }));
