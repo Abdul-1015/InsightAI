@@ -7,6 +7,9 @@ import { parseFile } from "./parse";
 import type { DatasetMeta, Filetype, ColumnInfo, SemanticColumn } from "./types";
 import type { DatasetStatProfile } from "../analytics/profile";
 import type { DatasetPatterns } from "../analytics/patterns";
+import type { DatasetKPIs } from "../analytics/kpi";
+import type { DatasetVisualizations } from "../analytics/visualizations";
+import type { DashboardLayout } from "../analytics/layout";
 
 const DATASET_DETAIL_ROW_LIMIT = 100;
 
@@ -50,6 +53,9 @@ export async function getDatasetDetail(
     profile: row.profile as DatasetStatProfile | null,
     semantic: row.semantic as SemanticColumn[] | null,
     patterns: row.patterns as DatasetPatterns | null,
+    kpis: row.kpis as DatasetKPIs | null,
+    visualizations: row.visualizations as DatasetVisualizations | null,
+    layout: row.layout as DashboardLayout | null,
     uploadedAt: row.uploadedAt,
     status: row.status,
   };

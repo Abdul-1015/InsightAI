@@ -9,9 +9,15 @@ import { parseFile } from "./parse";
 import { analyzeColumns } from "../analytics/semantic";
 import { profileDataset } from "../analytics/profile";
 import { discoverPatterns } from "../analytics/patterns";
+import { discoverKPIs } from "../analytics/kpi";
+import { recommendVisualizations } from "../analytics/visualizations";
+import { generateLayout } from "../analytics/layout";
 import type { DatasetMeta, Filetype, ColumnInfo, SemanticColumn } from "./types";
 import type { DatasetStatProfile } from "../analytics/profile";
 import type { DatasetPatterns } from "../analytics/patterns";
+import type { DatasetKPIs } from "../analytics/kpi";
+import type { DatasetVisualizations } from "../analytics/visualizations";
+import type { DashboardLayout } from "../analytics/layout";
 
 function userUploadDir(userId: string): string {
   return path.join(UPLOAD_DIR, userId);
@@ -54,6 +60,9 @@ export async function saveDataset(
   let profile: DatasetStatProfile | null = null;
   let semantic: SemanticColumn[] | null = null;
   let patterns: DatasetPatterns | null = null;
+  let kpis: DatasetKPIs | null = null;
+  let visualizations: DatasetVisualizations | null = null;
+  let layout: DashboardLayout | null = null;
   let status = "uploaded";
 
   try {
@@ -66,6 +75,9 @@ export async function saveDataset(
     semantic = analyzeColumns(columns, parsed.rows);
     profile = profileDataset(columns, parsed.rows, semantic);
     patterns = discoverPatterns(semantic, profile, parsed.rows);
+    kpis = discoverKPIs(semantic, profile, patterns);
+    visualizations = recommendVisualizations(semantic, profile, patterns, kpis);
+    layout = generateLayout({ kpis: kpis.kpis, visualizations: visualizations.recommendations });
   } catch (error) {
     console.error(`Failed to parse file ${originalName}:`, error);
     status = "parse_error";
@@ -83,6 +95,9 @@ export async function saveDataset(
     profile: profile as any,
     semantic: semantic as any,
     patterns: patterns as any,
+    kpis: kpis as any,
+    visualizations: visualizations as any,
+    layout: layout as any,
     uploadedAt: now,
     status,
   });
@@ -99,6 +114,9 @@ export async function saveDataset(
     profile,
     semantic,
     patterns,
+    kpis,
+    visualizations,
+    layout,
     uploadedAt: now,
     status,
   };
@@ -131,6 +149,9 @@ export async function getDatasetMeta(id: string, userId: string): Promise<Datase
     profile: row.profile as DatasetStatProfile | null,
     semantic: row.semantic as SemanticColumn[] | null,
     patterns: row.patterns as DatasetPatterns | null,
+    kpis: row.kpis as DatasetKPIs | null,
+    visualizations: row.visualizations as DatasetVisualizations | null,
+    layout: row.layout as DashboardLayout | null,
     uploadedAt: row.uploadedAt,
     status: row.status,
   };
@@ -156,6 +177,9 @@ export async function listDatasets(userId: string): Promise<DatasetMeta[]> {
     profile: row.profile as DatasetStatProfile | null,
     semantic: row.semantic as SemanticColumn[] | null,
     patterns: row.patterns as DatasetPatterns | null,
+    kpis: row.kpis as DatasetKPIs | null,
+    visualizations: row.visualizations as DatasetVisualizations | null,
+    layout: row.layout as DashboardLayout | null,
     uploadedAt: row.uploadedAt,
     status: row.status,
   }));

@@ -28,3 +28,27 @@ export type {
   ColumnPatterns,
   DatasetPatterns,
 } from "./patterns";
+
+export { discoverKPIs } from "./kpi";
+export type {
+  AggregationType,
+  KPIReason,
+  DiscoveredKPI,
+  DatasetKPIs,
+} from "./kpi";
+
+export { recommendVisualizations } from "./visualizations";
+export type {
+  ChartType,
+  VisualizationRecommendation,
+  DatasetVisualizations,
+} from "./visualizations";
+
+export { generateLayout } from "./layout";
+export type {
+  WidgetSize,
+  WidgetPosition,
+  DashboardWidget,
+  DashboardLayout,
+  LayoutInput,
+} from "./layout";

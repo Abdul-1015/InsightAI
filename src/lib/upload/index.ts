@@ -1,6 +1,9 @@
 export type { Filetype, DataType, SemanticColumn, ColumnInfo, NumericStats, CategoricalStats, ColumnProfile, DatasetProfile, DatasetMeta, DatasetPreview, UploadResult, ApiResponse } from "./types";
 export type { DatasetStatProfile } from "../analytics/profile";
 export type { DatasetPatterns } from "../analytics/patterns";
+export type { DatasetKPIs } from "../analytics/kpi";
+export type { DatasetVisualizations } from "../analytics/visualizations";
+export type { DashboardLayout } from "../analytics/layout";
 export { validateFile } from "./validate";
 export { parseFile } from "./parse";
 export { parseFileMetadata } from "./parser";

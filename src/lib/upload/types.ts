@@ -1,6 +1,9 @@
 import type { DatasetStatProfile } from "../analytics/profile";
 import type { SemanticType } from "../analytics/semantic/types";
 import type { DatasetPatterns } from "../analytics/patterns";
+import type { DatasetKPIs } from "../analytics/kpi";
+import type { DatasetVisualizations } from "../analytics/visualizations";
+import type { DashboardLayout } from "../analytics/layout";
 
 export type Filetype = 'csv' | 'xlsx';
 
@@ -56,6 +59,9 @@ export interface DatasetMeta {
   profile: DatasetStatProfile | null;
   semantic: SemanticColumn[] | null;
   patterns: DatasetPatterns | null;
+  kpis: DatasetKPIs | null;
+  visualizations: DatasetVisualizations | null;
+  layout: DashboardLayout | null;
   uploadedAt: Date;
   status: string;
 }
