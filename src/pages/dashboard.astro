@@ -12,7 +12,7 @@ let user = null;
 if (sessionToken) {
   const session = await validateSessionToken(sessionToken);
   if (session) {
-    user = getUser(session.userId) || null;
+    user = (await getUser(session.userId)) || null;
   }
 }
 
@@ -22,7 +22,7 @@ if (!user) {
 ---
 
 <Layout title="Dashboard - InsightAI" user={user}>
-  <DashboardLayout currentPage="dashboard">
-    <DashboardPage client:load />
+  <DashboardLayout currentPage="dashboard" client:load>
+    <DashboardPage />
   </DashboardLayout>
 </Layout>

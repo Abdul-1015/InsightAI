@@ -15,6 +15,7 @@ export const GET: APIRoute = async ({ redirect, cookies }) => {
   const codeVerifier = generateCodeVerifier();
   const scopes = ["openid", "profile", "email"];
   const url = google.createAuthorizationURL(state, codeVerifier, scopes);
+  url.searchParams.set("prompt", "select_account");
 
   cookies.set("oauth_code_verifier", codeVerifier, {
     path: "/",

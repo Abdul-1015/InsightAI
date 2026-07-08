@@ -1,4 +1,9 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 
 interface User {
   id: string;
@@ -17,50 +22,83 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
+export function AuthProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  console.log("🚀 AuthProvider Render");
+
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchUser = useCallback(async () => {
+  async function fetchUser() {
+    console.log("📡 Fetching current user...");
+
     try {
-      const res = await fetch("/api/auth/me");
-      const data = await res.json();
-      setUser(data.user);
-    } catch {
+      const response = await fetch("/api/auth/me", {
+        credentials: "include",
+        cache: "no-store",
+      });
+
+      console.log("Status:", response.status);
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      console.log("User Response:", data);
+
+      setUser(data.user ?? null);
+    } catch (error) {
+      console.error("Failed to fetch user:", error);
       setUser(null);
     } finally {
+      console.log("✅ Finished loading");
       setLoading(false);
     }
-  }, []);
+  }
 
   useEffect(() => {
-    const w = window as unknown as { __INSIGHTAI_USER__?: User | null };
-    if (w.__INSIGHTAI_USER__ !== undefined) {
-      setUser(w.__INSIGHTAI_USER__);
-      setLoading(false);
-      delete w.__INSIGHTAI_USER__;
-    } else {
-      fetchUser();
-    }
-  }, [fetchUser]);
-
-  const signOut = useCallback(async () => {
-    await fetch("/api/auth/signout", { method: "POST" });
-    setUser(null);
-    window.location.href = "/";
+    fetchUser();
   }, []);
 
+  async function signOut() {
+    try {
+      await fetch("/api/auth/signout", {
+        method: "POST",
+        credentials: "include",
+      });
+    } catch (error) {
+      console.error(error);
+    }
+
+    setUser(null);
+    window.location.href = "/";
+  }
+
   return (
-    <AuthContext.Provider value={{ user, loading, signOut, refreshUser: fetchUser }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        signOut,
+        refreshUser: fetchUser,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
 }
 
-export function useAuth(): AuthContextValue {
-  const ctx = useContext(AuthContext);
-  if (!ctx) {
-    throw new Error("useAuth must be used within an AuthProvider");
+export function useAuth() {
+  const context = useContext(AuthContext);
+
+  if (!context) {
+    throw new Error("useAuth must be used within AuthProvider");
   }
-  return ctx;
+
+  return context;
 }

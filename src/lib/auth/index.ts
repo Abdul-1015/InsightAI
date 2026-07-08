@@ -3,6 +3,7 @@ export { google, BASE_URL, SESSION_SECRET, SESSION_MAX_AGE } from "./config";
 export {
   createSessionToken,
   validateSessionToken,
+  deleteSession,
   setSessionCookie,
   clearSessionCookie,
 } from "./session";

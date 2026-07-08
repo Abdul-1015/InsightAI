@@ -30,6 +30,10 @@ export default defineConfig({
         context: 'server',
         access: 'secret',
       }),
+      DATABASE_URL: envField.string({
+        context: 'server',
+        access: 'secret',
+      }),
     },
   },
   vite: {

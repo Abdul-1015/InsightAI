@@ -12,7 +12,7 @@ let user = null;
 if (sessionToken) {
   const session = await validateSessionToken(sessionToken);
   if (session) {
-    user = getUser(session.userId) || null;
+    user = (await getUser(session.userId)) || null;
   }
 }
 

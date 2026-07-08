@@ -1,12 +1,21 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import { SignInPage } from '../components/pages/SignInPage';
+import { validateSessionToken } from '../lib/auth';
 
 export const prerender = false;
 
 const sessionToken = Astro.cookies.get('session')?.value;
+
 if (sessionToken) {
-  return Astro.redirect('/dashboard', 302);
+  const session = await validateSessionToken(sessionToken);
+
+  if (session) {
+    return Astro.redirect('/dashboard', 302);
+  }
+
+  // Invalid/expired cookie: remove it
+  Astro.cookies.delete('session');
 }
 ---
 

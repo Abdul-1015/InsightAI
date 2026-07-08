@@ -34,7 +34,7 @@ export const GET: APIRoute = async ({ url, cookies, redirect }) => {
     }
 
     const userinfo = await userResponse.json();
-    const user = upsertUser({
+    const user = await upsertUser({
       email: userinfo.email,
       name: userinfo.name || userinfo.email,
       avatar: userinfo.picture || null,

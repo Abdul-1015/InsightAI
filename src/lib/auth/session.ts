@@ -1,7 +1,11 @@
 import type { AstroCookies } from "astro";
+import { eq, and, gt } from "drizzle-orm";
+import { getDb } from "../db";
+import { sessions } from "../db/schema";
 import { SESSION_SECRET } from "./config";
 
 const encoder = new TextEncoder();
+const SESSION_MAX_AGE = 60 * 60 * 24 * 30;
 
 async function getKey(): Promise<CryptoKey> {
   return crypto.subtle.importKey(
@@ -13,45 +17,81 @@ async function getKey(): Promise<CryptoKey> {
   );
 }
 
-export async function createSessionToken(userId: string): Promise<string> {
+function generateSessionToken(): string {
+  const bytes = new Uint8Array(32);
+  crypto.getRandomValues(bytes);
+  return Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+async function signToken(token: string): Promise<string> {
   const key = await getKey();
-  const expiresAt = Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30;
-  const data = encoder.encode(`${userId}:${expiresAt}`);
-  const signatureBuffer = await crypto.subtle.sign("HMAC", key, data);
+  const signatureBuffer = await crypto.subtle.sign("HMAC", key, encoder.encode(token));
   const signature = btoa(String.fromCharCode(...new Uint8Array(signatureBuffer)));
-  return `${userId}:${expiresAt}.${signature}`;
+  return `${token}.${signature}`;
+}
+
+async function verifySignedToken(signed: string): Promise<string | null> {
+  try {
+    const key = await getKey();
+    const dotIndex = signed.lastIndexOf(".");
+    if (dotIndex === -1) return null;
+
+    const token = signed.slice(0, dotIndex);
+    const signatureBase64 = signed.slice(dotIndex + 1);
+
+    const signatureBytes = Uint8Array.from(atob(signatureBase64), (c) => c.charCodeAt(0));
+    const valid = await crypto.subtle.verify("HMAC", key, signatureBytes, encoder.encode(token));
+    return valid ? token : null;
+  } catch {
+    return null;
+  }
+}
+
+export async function createSessionToken(userId: string): Promise<string> {
+  const db = getDb();
+  const rawToken = generateSessionToken();
+  const expiresAt = new Date(Date.now() + SESSION_MAX_AGE * 1000);
+
+  await db.insert(sessions).values({
+    userId,
+    token: rawToken,
+    expiresAt,
+  });
+
+  return signToken(rawToken);
 }
 
 export async function validateSessionToken(
-  token: string
+  signedToken: string
 ): Promise<{ userId: string } | null> {
   try {
-    const key = await getKey();
-    const dotIndex = token.lastIndexOf(".");
-    if (dotIndex === -1) return null;
+    const token = await verifySignedToken(signedToken);
+    if (!token) return null;
 
-    const payloadPart = token.slice(0, dotIndex);
-    const signatureBase64 = token.slice(dotIndex + 1);
+    const db = getDb();
+    const now = new Date();
+    const rows = await db
+      .select()
+      .from(sessions)
+      .where(and(eq(sessions.token, token), gt(sessions.expiresAt, now)))
+      .limit(1);
 
-    const colonIndex = payloadPart.indexOf(":");
-    if (colonIndex === -1) return null;
-
-    const userId = payloadPart.slice(0, colonIndex);
-    const expiresAt = parseInt(payloadPart.slice(colonIndex + 1), 10);
-
-    if (!userId || isNaN(expiresAt) || Date.now() / 1000 > expiresAt) {
-      return null;
-    }
-
-    const data = encoder.encode(payloadPart);
-    const signatureBytes = Uint8Array.from(atob(signatureBase64), (c) =>
-      c.charCodeAt(0)
-    );
-    const valid = await crypto.subtle.verify("HMAC", key, signatureBytes, data);
-
-    return valid ? { userId } : null;
+    if (rows.length === 0) return null;
+    return { userId: rows[0].userId };
   } catch {
     return null;
+  }
+}
+
+export async function deleteSession(signedToken: string): Promise<void> {
+  try {
+    const token = await verifySignedToken(signedToken);
+    if (!token) return;
+
+    const db = getDb();
+    await db.delete(sessions).where(eq(sessions.token, token));
+  } catch {
+    // ignore errors on cleanup
   }
 }
 

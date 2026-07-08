@@ -39,7 +39,8 @@ export const TopBar: React.FC<TopBarProps> = ({
   onToggleDark,
   currentPage,
 }) => {
-  const { user, signOut } = useAuth();
+  const { user, loading, signOut } = useAuth();
+  console.log("TopBar", { loading, user });
   const [menuOpen, setMenuOpen] = React.useState(false);
 
   return (

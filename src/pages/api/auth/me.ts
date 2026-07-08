@@ -18,7 +18,7 @@ export const GET: APIRoute = async ({ cookies }) => {
     });
   }
 
-  const user = getUser(session.userId);
+  const user = await getUser(session.userId);
   if (!user) {
     return new Response(JSON.stringify({ user: null }), {
       status: 200,

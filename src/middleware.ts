@@ -26,6 +26,8 @@ export const onRequest = defineMiddleware(
       const session = await validateSessionToken(sessionToken);
       if (session) {
         userId = session.userId;
+      } else {
+        cookies.delete("session", { path: "/" });
       }
     }
 
