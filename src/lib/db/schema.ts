@@ -1,4 +1,4 @@
-import { pgTable, text, integer, timestamp, uuid, index } from 'drizzle-orm/pg-core';
+import { pgTable, text, integer, timestamp, uuid, index, jsonb } from 'drizzle-orm/pg-core';
 
 export const users = pgTable('users', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -30,14 +30,22 @@ export type NewSessionRow = typeof sessions.$inferInsert;
 
 export const datasets = pgTable('datasets', {
   id: text('id').primaryKey(),
-  name: text('name').notNull(),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  originalName: text('original_name').notNull(),
+  storedName: text('stored_name').notNull(),
   fileType: text('file_type').notNull(),
   size: integer('size').notNull(),
-  rowCount: integer('row_count').notNull(),
-  columns: text('columns').array().notNull(),
-  filePath: text('file_path').notNull(),
-  uploadedAt: timestamp('uploaded_at', { withTimezone: true, mode: 'string' }).notNull().defaultNow(),
-});
+  rowCount: integer('row_count'),
+  columns: jsonb('columns'),
+  profile: jsonb('profile'),
+  uploadedAt: timestamp('uploaded_at', { withTimezone: true, mode: 'date' }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'date' })
+    .notNull()
+    .defaultNow(),
+  status: text('status').notNull().default('uploaded'),
+}, (table) => ({
+  userIdIdx: index('datasets_user_id_idx').on(table.userId),
+}));
 
 export type Dataset = typeof datasets.$inferSelect;
 export type NewDataset = typeof datasets.$inferInsert;

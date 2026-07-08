@@ -1,54 +1,41 @@
 import type { APIRoute } from "astro";
-import { validateFile, parseFile, saveDataset, listDatasets } from "../../../lib/upload";
+import { validateSessionToken, getUser } from "../../../lib/auth";
+import { listDatasets } from "../../../lib/upload";
 
-export const GET: APIRoute = async () => {
-  const datasets = await listDatasets();
-  return new Response(JSON.stringify({ ok: true, data: datasets }), {
-    status: 200,
-    headers: { "Content-Type": "application/json" },
-  });
-};
-
-export const POST: APIRoute = async ({ request }) => {
+export const GET: APIRoute = async ({ cookies }) => {
   try {
-    const formData = await request.formData();
-    const file = formData.get("file");
-
-    if (!file || !(file instanceof File)) {
+    // Check authentication
+    const sessionToken = cookies.get("session")?.value;
+    if (!sessionToken) {
       return new Response(
-        JSON.stringify({ ok: false, error: "No file provided." }),
-        { status: 400, headers: { "Content-Type": "application/json" } }
+        JSON.stringify({ ok: false, error: "Authentication required." }),
+        { status: 401, headers: { "Content-Type": "application/json" } }
       );
     }
 
-    const validation = validateFile(file.name, file.type, file.size);
-    if (!validation.valid) {
+    const session = await validateSessionToken(sessionToken);
+    if (!session) {
       return new Response(
-        JSON.stringify({ ok: false, error: validation.error }),
-        { status: 400, headers: { "Content-Type": "application/json" } }
+        JSON.stringify({ ok: false, error: "Invalid session." }),
+        { status: 401, headers: { "Content-Type": "application/json" } }
       );
     }
 
-    const buffer = Buffer.from(await file.arrayBuffer());
-    const parsed = parseFile(buffer, validation.fileType!);
+    const user = await getUser(session.userId);
+    if (!user) {
+      return new Response(
+        JSON.stringify({ ok: false, error: "User not found." }),
+        { status: 401, headers: { "Content-Type": "application/json" } }
+      );
+    }
 
-    const id = crypto.randomUUID();
-    const dataset = await saveDataset(
-      id,
-      file.name,
-      validation.fileType!,
-      file.size,
-      parsed.totalCount,
-      parsed.columns,
-      buffer
-    );
-
-    return new Response(
-      JSON.stringify({ ok: true, data: dataset }),
-      { status: 201, headers: { "Content-Type": "application/json" } }
-    );
+    const datasets = await listDatasets(user.id);
+    return new Response(JSON.stringify({ ok: true, data: datasets }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Upload failed.";
+    const message = err instanceof Error ? err.message : "Failed to list datasets.";
     return new Response(
       JSON.stringify({ ok: false, error: message }),
       { status: 500, headers: { "Content-Type": "application/json" } }

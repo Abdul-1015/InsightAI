@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import {
-  Upload, FileSpreadsheet, FileJson, FileText,
+  Upload, FileSpreadsheet, FileText,
   AlertCircle, Loader2, Plus, Database, Trash2,
-  Eye, EyeOff,
+  Eye, EyeOff, ExternalLink,
 } from 'lucide-react';
 import { Card } from '../ui/Card';
 import { Badge } from '../ui/Badge';
@@ -15,12 +15,13 @@ type UploadStatus = 'idle' | 'uploading' | 'processing' | 'ready' | 'error' | 'p
 
 interface DatasetMeta {
   id: string;
-  name: string;
-  fileType: 'csv' | 'xlsx' | 'json';
+  userId: string;
+  originalName: string;
+  storedName: string;
+  fileType: 'csv' | 'xlsx';
   size: number;
-  rowCount: number;
-  columns: string[];
-  uploadedAt: string;
+  uploadedAt: Date;
+  status: string;
 }
 
 interface PreviewData {
@@ -93,7 +94,7 @@ export function UploadPage() {
         });
 
         xhr.addEventListener('error', () => reject(new Error('Upload failed')));
-        xhr.open('POST', '/api/datasets');
+        xhr.open('POST', '/api/upload');
         xhr.send(formData);
       });
 
@@ -201,7 +202,6 @@ export function UploadPage() {
     switch (type) {
       case 'csv': return <FileText className="w-5 h-5 text-emerald-500" />;
       case 'xlsx': return <FileSpreadsheet className="w-5 h-5 text-[#4F46E5]" />;
-      case 'json': return <FileJson className="w-5 h-5 text-amber-500" />;
       default: return <FileText className="w-5 h-5 text-muted-foreground" />;
     }
   };
@@ -228,7 +228,7 @@ export function UploadPage() {
       <input
         ref={fileInputRef}
         type="file"
-        accept=".csv,.xlsx,.xls,.json"
+        accept=".csv,.xlsx,.xls"
         multiple
         className="hidden"
         onChange={handleFileChange}
@@ -253,7 +253,7 @@ export function UploadPage() {
             Drop files here or click to upload
           </h3>
           <p className="text-xs text-muted-foreground mt-1.5 max-w-sm">
-            Supports CSV, Excel (.xlsx, .xls), and JSON files. Maximum file size: 50MB.
+            Supports CSV and Excel (.xlsx, .xls) files. Maximum file size: 100MB.
           </p>
           <button
             type="button"
@@ -317,12 +317,19 @@ export function UploadPage() {
               <div key={dataset.id} className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
                 {getFileIcon(dataset.fileType)}
                 <div className="flex-1 min-w-0">
-                  <div className="text-sm font-medium text-foreground truncate">{dataset.name}</div>
+                  <div className="text-sm font-medium text-foreground truncate">{dataset.originalName}</div>
                   <div className="text-[10px] text-muted-foreground">
-                    {formatBytes(dataset.size)} &middot; {dataset.rowCount.toLocaleString()} rows &middot; {dataset.columns.length} columns
+                    {formatBytes(dataset.size)} &middot; {dataset.status}
                   </div>
                 </div>
                 {getStatusBadge('ready')}
+                <a
+                  href={`/datasets/${dataset.id}`}
+                  className="w-7 h-7 rounded flex items-center justify-center text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                  title="Open dataset details"
+                >
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </a>
                 <button
                   onClick={() => togglePreview(dataset.id)}
                   className={cn(

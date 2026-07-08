@@ -1,0 +1,33 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { DashboardLayout } from '../../components/layout/DashboardLayout';
+import { DatasetDetails } from '../../components/pages/DatasetDetails';
+import { validateSessionToken, getUser } from '../../lib/auth';
+
+export const prerender = false;
+
+const sessionToken = Astro.cookies.get('session')?.value;
+let user = null;
+
+if (sessionToken) {
+  const session = await validateSessionToken(sessionToken);
+  if (session) {
+    user = (await getUser(session.userId)) || null;
+  }
+}
+
+if (!user) {
+  return Astro.redirect('/signin', 302);
+}
+
+const { id } = Astro.params;
+if (!id) {
+  return Astro.redirect('/upload', 302);
+}
+---
+
+<Layout title="Dataset Details - InsightAI" user={user}>
+  <DashboardLayout currentPage="upload">
+    <DatasetDetails datasetId={id} client:load />
+  </DashboardLayout>
+</Layout>
