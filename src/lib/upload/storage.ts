@@ -6,8 +6,12 @@ import { datasets } from "../db/schema";
 import { eq, and } from "drizzle-orm";
 import { parseFileMetadata } from "./parser";
 import { parseFile } from "./parse";
-import { generateProfile } from "./profiler";
-import type { DatasetMeta, Filetype, ColumnInfo, DatasetProfile } from "./types";
+import { analyzeColumns } from "../analytics/semantic";
+import { profileDataset } from "../analytics/profile";
+import { discoverPatterns } from "../analytics/patterns";
+import type { DatasetMeta, Filetype, ColumnInfo, SemanticColumn } from "./types";
+import type { DatasetStatProfile } from "../analytics/profile";
+import type { DatasetPatterns } from "../analytics/patterns";
 
 function userUploadDir(userId: string): string {
   return path.join(UPLOAD_DIR, userId);
@@ -47,7 +51,9 @@ export async function saveDataset(
   
   let rowCount: number | null = null;
   let columns: ColumnInfo[] | null = null;
-  let profile: DatasetProfile | null = null;
+  let profile: DatasetStatProfile | null = null;
+  let semantic: SemanticColumn[] | null = null;
+  let patterns: DatasetPatterns | null = null;
   let status = "uploaded";
 
   try {
@@ -57,7 +63,9 @@ export async function saveDataset(
     status = "parsed";
 
     const parsed = parseFile(fileBuffer, fileType, 1000);
-    profile = generateProfile(columns, parsed.rows);
+    semantic = analyzeColumns(columns, parsed.rows);
+    profile = profileDataset(columns, parsed.rows, semantic);
+    patterns = discoverPatterns(semantic, profile, parsed.rows);
   } catch (error) {
     console.error(`Failed to parse file ${originalName}:`, error);
     status = "parse_error";
@@ -73,6 +81,8 @@ export async function saveDataset(
     rowCount,
     columns: columns as any,
     profile: profile as any,
+    semantic: semantic as any,
+    patterns: patterns as any,
     uploadedAt: now,
     status,
   });
@@ -87,6 +97,8 @@ export async function saveDataset(
     rowCount,
     columns,
     profile,
+    semantic,
+    patterns,
     uploadedAt: now,
     status,
   };
@@ -116,7 +128,9 @@ export async function getDatasetMeta(id: string, userId: string): Promise<Datase
     size: row.size,
     rowCount: row.rowCount,
     columns: row.columns as ColumnInfo[] | null,
-    profile: row.profile as DatasetProfile | null,
+    profile: row.profile as DatasetStatProfile | null,
+    semantic: row.semantic as SemanticColumn[] | null,
+    patterns: row.patterns as DatasetPatterns | null,
     uploadedAt: row.uploadedAt,
     status: row.status,
   };
@@ -139,7 +153,9 @@ export async function listDatasets(userId: string): Promise<DatasetMeta[]> {
     size: row.size,
     rowCount: row.rowCount,
     columns: row.columns as ColumnInfo[] | null,
-    profile: row.profile as DatasetProfile | null,
+    profile: row.profile as DatasetStatProfile | null,
+    semantic: row.semantic as SemanticColumn[] | null,
+    patterns: row.patterns as DatasetPatterns | null,
     uploadedAt: row.uploadedAt,
     status: row.status,
   }));

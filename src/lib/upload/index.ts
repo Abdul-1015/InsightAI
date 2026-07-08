@@ -1,4 +1,6 @@
-export type { Filetype, DataType, ColumnInfo, NumericStats, CategoricalStats, ColumnProfile, DatasetProfile, DatasetMeta, DatasetPreview, UploadResult, ApiResponse } from "./types";
+export type { Filetype, DataType, SemanticColumn, ColumnInfo, NumericStats, CategoricalStats, ColumnProfile, DatasetProfile, DatasetMeta, DatasetPreview, UploadResult, ApiResponse } from "./types";
+export type { DatasetStatProfile } from "../analytics/profile";
+export type { DatasetPatterns } from "../analytics/patterns";
 export { validateFile } from "./validate";
 export { parseFile } from "./parse";
 export { parseFileMetadata } from "./parser";

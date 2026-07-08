@@ -4,7 +4,9 @@ import { getDb } from "../db";
 import { datasets } from "../db/schema";
 import { eq, and } from "drizzle-orm";
 import { parseFile } from "./parse";
-import type { DatasetMeta, Filetype, ColumnInfo, DatasetProfile } from "./types";
+import type { DatasetMeta, Filetype, ColumnInfo, SemanticColumn } from "./types";
+import type { DatasetStatProfile } from "../analytics/profile";
+import type { DatasetPatterns } from "../analytics/patterns";
 
 const DATASET_DETAIL_ROW_LIMIT = 100;
 
@@ -45,7 +47,9 @@ export async function getDatasetDetail(
     size: row.size,
     rowCount: row.rowCount,
     columns: row.columns as ColumnInfo[] | null,
-    profile: row.profile as DatasetProfile | null,
+    profile: row.profile as DatasetStatProfile | null,
+    semantic: row.semantic as SemanticColumn[] | null,
+    patterns: row.patterns as DatasetPatterns | null,
     uploadedAt: row.uploadedAt,
     status: row.status,
   };

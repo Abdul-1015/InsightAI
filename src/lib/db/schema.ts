@@ -38,6 +38,8 @@ export const datasets = pgTable('datasets', {
   rowCount: integer('row_count'),
   columns: jsonb('columns'),
   profile: jsonb('profile'),
+  semantic: jsonb('semantic'),
+  patterns: jsonb('patterns'),
   uploadedAt: timestamp('uploaded_at', { withTimezone: true, mode: 'date' }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true, mode: 'date' })
     .notNull()

@@ -1,6 +1,17 @@
+import type { DatasetStatProfile } from "../analytics/profile";
+import type { SemanticType } from "../analytics/semantic/types";
+import type { DatasetPatterns } from "../analytics/patterns";
+
 export type Filetype = 'csv' | 'xlsx';
 
 export type DataType = 'string' | 'number' | 'boolean' | 'date' | 'null' | 'unknown';
+
+export interface SemanticColumn {
+  name: string;
+  dataType: DataType;
+  semanticType: SemanticType;
+  nullable: boolean;
+}
 
 export interface ColumnInfo {
   name: string;
@@ -42,7 +53,9 @@ export interface DatasetMeta {
   size: number;
   rowCount: number | null;
   columns: ColumnInfo[] | null;
-  profile: DatasetProfile | null;
+  profile: DatasetStatProfile | null;
+  semantic: SemanticColumn[] | null;
+  patterns: DatasetPatterns | null;
   uploadedAt: Date;
   status: string;
 }

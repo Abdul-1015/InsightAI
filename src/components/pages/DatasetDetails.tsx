@@ -20,26 +20,59 @@ interface ColumnInfo {
 interface NumericStats {
   min: number;
   max: number;
+  sum: number;
   mean: number;
+  median: number;
+  stdDev: number;
+  nullCount: number;
+  nullPercent: number;
+  uniqueCount: number;
+  uniquePercent: number;
+  zeroCount: number;
 }
 
 interface CategoricalStats {
-  topValues: Array<{ value: string; count: number }>;
-}
-
-interface ColumnProfile {
-  name: string;
-  dataType: string;
-  nullCount: number;
   uniqueCount: number;
-  totalCount: number;
-  numericStats?: NumericStats;
-  categoricalStats?: CategoricalStats;
+  uniquePercent: number;
+  nullCount: number;
+  nullPercent: number;
+  topValues: Array<{ value: string; count: number; percent: number }>;
+  mostFrequentValue: string | null;
 }
 
-interface DatasetProfile {
-  columns: ColumnProfile[];
+interface BooleanStats {
+  trueCount: number;
+  truePercent: number;
+  falseCount: number;
+  falsePercent: number;
+  nullCount: number;
+  nullPercent: number;
+}
+
+interface DateStats {
+  earliestDate: string | null;
+  latestDate: string | null;
+  dateRangeDays: number | null;
+  nullCount: number;
+  nullPercent: number;
+}
+
+interface ColumnStatistics {
+  type: 'numeric' | 'categorical' | 'boolean' | 'date' | 'null';
+  stats: NumericStats | CategoricalStats | BooleanStats | DateStats | { nullCount: number; nullPercent: number };
+}
+
+interface ProfiledColumn {
+  name: string;
+  semanticType: string;
+  totalCount: number;
+  statistics: ColumnStatistics;
+}
+
+interface DatasetStatProfile {
+  columns: ProfiledColumn[];
   totalRows: number;
+  profiledAt: Date;
 }
 
 interface DatasetMeta {
@@ -51,7 +84,8 @@ interface DatasetMeta {
   size: number;
   rowCount: number | null;
   columns: ColumnInfo[] | null;
-  profile: DatasetProfile | null;
+  profile: DatasetStatProfile | null;
+  semantic: Array<{ name: string; dataType: string; semanticType: string; nullable: boolean }> | null;
   uploadedAt: Date;
   status: string;
 }
@@ -273,71 +307,98 @@ export function DatasetDetails({ datasetId }: DatasetDetailsProps) {
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-medium text-foreground">{colProfile.name}</span>
                     <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-muted">
-                      {colProfile.dataType}
+                      {colProfile.semanticType}
                     </span>
                   </div>
                   <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                    <span>{colProfile.uniqueCount.toLocaleString()} unique</span>
-                    <span>{colProfile.nullCount.toLocaleString()} null</span>
+                    <span>{colProfile.statistics.type === 'numeric' ? (colProfile.statistics.stats as NumericStats).uniqueCount.toLocaleString() : colProfile.statistics.type === 'categorical' ? (colProfile.statistics.stats as CategoricalStats).uniqueCount.toLocaleString() : ''} unique</span>
+                    <span>{colProfile.statistics.type === 'numeric' ? (colProfile.statistics.stats as NumericStats).nullCount.toLocaleString() : colProfile.statistics.type === 'categorical' ? (colProfile.statistics.stats as CategoricalStats).nullCount.toLocaleString() : colProfile.statistics.type === 'boolean' ? (colProfile.statistics.stats as BooleanStats).nullCount.toLocaleString() : colProfile.statistics.type === 'date' ? (colProfile.statistics.stats as DateStats).nullCount.toLocaleString() : ''} null</span>
                   </div>
                 </div>
 
                 {/* Numeric Stats */}
-                {colProfile.numericStats && (
+                {colProfile.statistics.type === 'numeric' && (
                   <div className="grid grid-cols-3 gap-4 mt-3">
                     <div className="bg-muted/50 rounded-lg p-3">
                       <div className="flex items-center gap-1 mb-1">
                         <TrendingUp className="w-3 h-3 text-muted-foreground" />
                         <span className="text-[10px] font-medium text-muted-foreground">Min</span>
                       </div>
-                      <p className="text-sm font-medium text-foreground">{formatNumber(colProfile.numericStats.min)}</p>
+                      <p className="text-sm font-medium text-foreground">{formatNumber((colProfile.statistics.stats as NumericStats).min)}</p>
                     </div>
                     <div className="bg-muted/50 rounded-lg p-3">
                       <div className="flex items-center gap-1 mb-1">
                         <HashIcon className="w-3 h-3 text-muted-foreground" />
                         <span className="text-[10px] font-medium text-muted-foreground">Mean</span>
                       </div>
-                      <p className="text-sm font-medium text-foreground">{formatNumber(colProfile.numericStats.mean)}</p>
+                      <p className="text-sm font-medium text-foreground">{formatNumber((colProfile.statistics.stats as NumericStats).mean)}</p>
                     </div>
                     <div className="bg-muted/50 rounded-lg p-3">
                       <div className="flex items-center gap-1 mb-1">
                         <TrendingUp className="w-3 h-3 text-muted-foreground" />
                         <span className="text-[10px] font-medium text-muted-foreground">Max</span>
                       </div>
-                      <p className="text-sm font-medium text-foreground">{formatNumber(colProfile.numericStats.max)}</p>
+                      <p className="text-sm font-medium text-foreground">{formatNumber((colProfile.statistics.stats as NumericStats).max)}</p>
                     </div>
                   </div>
                 )}
 
                 {/* Categorical Stats */}
-                {colProfile.categoricalStats && colProfile.categoricalStats.topValues.length > 0 && (
+                {colProfile.statistics.type === 'categorical' && (colProfile.statistics.stats as CategoricalStats).topValues.length > 0 && (
                   <div className="mt-3">
                     <span className="text-[10px] font-medium text-muted-foreground mb-2 block">Top Values</span>
                     <div className="space-y-1">
-                      {colProfile.categoricalStats.topValues.slice(0, 5).map((item, i) => {
-                        const percentage = colProfile.totalCount > 0 
-                          ? (item.count / colProfile.totalCount) * 100 
-                          : 0;
-                        return (
-                          <div key={i} className="flex items-center gap-2">
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-2">
-                                <span className="text-xs text-foreground truncate max-w-[150px]">{item.value}</span>
-                                <span className="text-[10px] text-muted-foreground">({item.count.toLocaleString()})</span>
-                              </div>
-                              <div className="w-full h-1 bg-muted rounded-full mt-1 overflow-hidden">
-                                <div 
-                                  className="h-full bg-[#4F46E5] rounded-full" 
-                                  style={{ width: `${Math.min(percentage, 100)}%` }}
-                                />
-                              </div>
+                      {(colProfile.statistics.stats as CategoricalStats).topValues.slice(0, 5).map((item, i) => (
+                        <div key={i} className="flex items-center gap-2">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs text-foreground truncate max-w-[150px]">{item.value}</span>
+                              <span className="text-[10px] text-muted-foreground">({item.count.toLocaleString()})</span>
                             </div>
-                            <span className="text-[10px] text-muted-foreground w-12 text-right">
-                              {percentage.toFixed(1)}%
-                            </span>
+                            <div className="w-full h-1 bg-muted rounded-full mt-1 overflow-hidden">
+                              <div 
+                                className="h-full bg-[#4F46E5] rounded-full" 
+                                style={{ width: `${Math.min(item.percent, 100)}%` }}
+                              />
+                            </div>
                           </div>
-                        );
-                      })}
+                          <span className="text-[10px] text-muted-foreground w-12 text-right">
+                            {item.percent.toFixed(1)}%
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Boolean Stats */}
+                {colProfile.statistics.type === 'boolean' && (
+                  <div className="grid grid-cols-2 gap-4 mt-3">
+                    <div className="bg-muted/50 rounded-lg p-3">
+                      <span className="text-[10px] font-medium text-muted-foreground block mb-1">True</span>
+                      <p className="text-sm font-medium text-foreground">{(colProfile.statistics.stats as BooleanStats).trueCount.toLocaleString()} ({(colProfile.statistics.stats as BooleanStats).truePercent}%)</p>
+                    </div>
+                    <div className="bg-muted/50 rounded-lg p-3">
+                      <span className="text-[10px] font-medium text-muted-foreground block mb-1">False</span>
+                      <p className="text-sm font-medium text-foreground">{(colProfile.statistics.stats as BooleanStats).falseCount.toLocaleString()} ({(colProfile.statistics.stats as BooleanStats).falsePercent}%)</p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Date Stats */}
+                {colProfile.statistics.type === 'date' && (
+                  <div className="grid grid-cols-3 gap-4 mt-3">
+                    <div className="bg-muted/50 rounded-lg p-3">
+                      <span className="text-[10px] font-medium text-muted-foreground block mb-1">Earliest</span>
+                      <p className="text-sm font-medium text-foreground">{(colProfile.statistics.stats as DateStats).earliestDate || 'N/A'}</p>
+                    </div>
+                    <div className="bg-muted/50 rounded-lg p-3">
+                      <span className="text-[10px] font-medium text-muted-foreground block mb-1">Latest</span>
+                      <p className="text-sm font-medium text-foreground">{(colProfile.statistics.stats as DateStats).latestDate || 'N/A'}</p>
+                    </div>
+                    <div className="bg-muted/50 rounded-lg p-3">
+                      <span className="text-[10px] font-medium text-muted-foreground block mb-1">Range (days)</span>
+                      <p className="text-sm font-medium text-foreground">{(colProfile.statistics.stats as DateStats).dateRangeDays != null ? (colProfile.statistics.stats as DateStats).dateRangeDays!.toLocaleString() : 'N/A'}</p>
                     </div>
                   </div>
                 )}
