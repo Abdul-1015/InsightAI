@@ -60,3 +60,11 @@ export type {
   DashboardDatasetMeta,
   DashboardFilter,
 } from "./dashboard";
+
+export { generateWidgetData, generateAllWidgetData, parseAggregation } from "./query";
+export type {
+  AggregationFunction,
+  WidgetDataResult,
+  QueryContext,
+  GroupByQuery,
+} from "./query";

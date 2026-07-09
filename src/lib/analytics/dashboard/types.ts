@@ -5,6 +5,8 @@ import type { DatasetKPIs, DiscoveredKPI } from "../kpi";
 import type { DatasetVisualizations, VisualizationRecommendation } from "../visualizations";
 import type { DashboardLayout, DashboardWidget } from "../layout";
 
+export type { DashboardWidget } from "../layout";
+
 export interface DashboardDatasetMeta {
   id: string;
   originalName: string;
